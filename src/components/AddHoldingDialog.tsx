@@ -3,6 +3,13 @@ import { Holding } from "@/types/portfolio";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Plus, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -21,13 +28,18 @@ export const AddHoldingDialog = ({
   onClose 
 }: AddHoldingDialogProps) => {
   const [open, setOpen] = useState(false);
+  // Available categories for holdings. You can extend this list as needed.
+  const categories = ["Stock", "Crypto", "Real Estate", "Cash", "Other"];
+
+  // Form state for the dialog. Includes a category field to classify each holding.
   const [formData, setFormData] = useState({
     symbol: "",
     name: "",
     quantity: "",
     purchasePrice: "",
     currentPrice: "",
-    purchaseDate: new Date().toISOString().split('T')[0]
+    purchaseDate: new Date().toISOString().split("T")[0],
+    category: categories[0],
   });
   
   const { toast } = useToast();
@@ -40,7 +52,8 @@ export const AddHoldingDialog = ({
         quantity: editingHolding.quantity.toString(),
         purchasePrice: editingHolding.purchasePrice.toString(),
         currentPrice: editingHolding.currentPrice.toString(),
-        purchaseDate: editingHolding.purchaseDate
+        purchaseDate: editingHolding.purchaseDate,
+        category: (editingHolding as any).category ?? categories[0],
       });
       setOpen(true);
     }
@@ -64,7 +77,8 @@ export const AddHoldingDialog = ({
       quantity: parseFloat(formData.quantity),
       purchasePrice: parseFloat(formData.purchasePrice),
       currentPrice: parseFloat(formData.currentPrice),
-      purchaseDate: formData.purchaseDate
+      purchaseDate: formData.purchaseDate,
+      category: formData.category,
     };
 
     if (editingHolding && onUpdateHolding) {
@@ -79,7 +93,8 @@ export const AddHoldingDialog = ({
       quantity: "",
       purchasePrice: "",
       currentPrice: "",
-      purchaseDate: new Date().toISOString().split('T')[0]
+      purchaseDate: new Date().toISOString().split("T")[0],
+      category: categories[0],
     });
     
     setOpen(false);
@@ -179,6 +194,26 @@ export const AddHoldingDialog = ({
               value={formData.purchaseDate}
               onChange={(e) => setFormData({ ...formData, purchaseDate: e.target.value })}
             />
+          </div>
+
+          {/* Category selector */}
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select
+              value={formData.category}
+              onValueChange={(value) => setFormData({ ...formData, category: value })}
+            >
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button type="submit" className="w-full">
