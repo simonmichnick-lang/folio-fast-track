@@ -5,7 +5,7 @@ import { PortfolioSummary } from "@/components/PortfolioSummary";
 import { AddHoldingDialog } from "@/components/AddHoldingDialog";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, BarChart3 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const STORAGE_KEY = "portfolio-holdings";
 
