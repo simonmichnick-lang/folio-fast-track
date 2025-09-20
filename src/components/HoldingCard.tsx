@@ -26,10 +26,6 @@ export const HoldingCard = ({ holding, onEdit, onDelete }: HoldingCardProps) => 
           <div className="flex flex-col">
             <h3 className="font-semibold text-lg tracking-tight">{holding.symbol}</h3>
             <p className="text-sm text-muted-foreground truncate max-w-[150px]">{holding.name}</p>
-            {/* Display the holding category as a badge */}
-            {holding.category && (
-              <Badge variant="secondary" className="w-max mt-1 text-xs">{holding.category}</Badge>
-            )}
           </div>
           <Badge variant={isGain ? "default" : "destructive"} className="flex items-center gap-1">
             {isGain ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
