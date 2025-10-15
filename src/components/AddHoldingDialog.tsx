@@ -1,15 +1,9 @@
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { HoldingSchema, type HoldingInput } from "@/lib/validation/holding";
+import { Holding } from "@/types/portfolio";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Plus, Save } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,21 +17,19 @@ interface AddHoldingDialogProps {
 type HoldingFormState = {
   symbol: string;
   name: string;
-  shares: string;         // keep as string for the <input>
-  purchasePrice: string;  // keep as string for the <input>
-  currentPrice: string;   // keep as string for the <input>
-  purchaseDate: string;   // 'yyyy-MM-dd'
-  // category?: string;   // if you still keep category in DB but hide UI
+  quantity: string;
+  purchasePrice: string;
+  currentPrice: string;
+  purchaseDate: string;
 };
 
 const initialHoldingForm: HoldingFormState = {
   symbol: "",
   name: "",
-  shares: "",
+  quantity: "",
   purchasePrice: "",
   currentPrice: "",
   purchaseDate: format(new Date(), "yyyy-MM-dd"),
-  // category: "Other",
 };
 
 export const AddHoldingDialog = ({ 
@@ -47,17 +39,7 @@ export const AddHoldingDialog = ({
   onClose 
 }: AddHoldingDialogProps) => {
   const [open, setOpen] = useState(false);
-
-  // Form state for the dialog
   const [formData, setFormData] = useState<HoldingFormState>(initialHoldingForm);
-    symbol: "",
-    name: "",
-    quantity: "",
-    purchasePrice: "",
-    currentPrice: "",
-    purchaseDate: new Date().toISOString().split("T")[0],
-  });
-  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -74,51 +56,17 @@ export const AddHoldingDialog = ({
     }
   }, [editingHolding]);
 
-const toPayload = (): HoldingInput => {
-  const payload = {
-    symbol: formData.symbol.trim(),
-    name: formData.name.trim(),
-    shares: Number(formData.shares),
-    purchasePrice: Number(formData.purchasePrice),
-    currentPrice: Number(formData.currentPrice),
-    purchaseDate: formData.purchaseDate,
-    // category: formData.category, // if used
-  };
-
-  // Validate & coerce
-  const parsed = HoldingSchema.safeParse(payload);
-  if (!parsed.success) {
-    const msg = parsed.error.issues.map(i => i.message).join(", ");
-    throw new Error(msg || "Please check your entries.");
-  }
-  return parsed.data;
-};
-
- const [isSaving, setIsSaving] = useState(false);
-
-const handleSubmit = async () => {
-  try {
-    setIsSaving(true);
-    const payload = toPayload();
-
-    if (editingHolding && onUpdateHolding) {
-      await onUpdateHolding({ ...editingHolding, ...payload });
-      // show success toast/snackbar here
-    } else if (onSave) {
-      await onSave(payload);
-      // show success toast/snackbar here
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.symbol || !formData.quantity || !formData.purchasePrice || !formData.currentPrice) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
     }
-
-    setFormData(initialHoldingForm);
-    setOpen(false); // if you control the Dialog open state here
-  } catch (err: any) {
-    // show error toast/snackbar with err.message
-    console.error(err);
-  } finally {
-    setIsSaving(false);
-  }
-};
-
 
     const holdingData = {
       symbol: formData.symbol.toUpperCase(),
@@ -135,15 +83,7 @@ const handleSubmit = async () => {
       onAddHolding(holdingData);
     }
 
-    setFormData({
-      symbol: "",
-      name: "",
-      quantity: "",
-      purchasePrice: "",
-      currentPrice: "",
-      purchaseDate: new Date().toISOString().split("T")[0],
-    });
-    
+    setFormData(initialHoldingForm);
     setOpen(false);
     onClose?.();
 
