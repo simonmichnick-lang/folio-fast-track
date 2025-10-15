@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Holding } from "@/types/portfolio";
+import { format } from "date-fns";
+import { HoldingSchema, type HoldingInput } from "@/lib/validation/holding";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
